@@ -15,7 +15,7 @@ const normalize = (value) => value.replaceAll('\\', '/').replace(/\.(tsx?|jsx?|m
 // Root/server lib a slice may reach only through a named adapter — add an entry
 // here (not a new `file ===` branch) when another entity needs the same shape.
 const contractAdapters = [
-  { file: 'entities/event/lib/rules', allowed: new Set(['slug', 'status', 'event-limits', 'event-slug', 'demo-sessions']) },
+  { file: 'entities/event/lib/rules', allowed: new Set(['slug', 'status', 'event-limits', 'event-slug', 'demo-sessions', 'agenda-limits']) },
 ];
 
 // Deep paths that are themselves the intended public entry (ssr:false client

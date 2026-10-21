@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { SectionTitle } from "@fe/shared/ui/SectionTitle";
-import { SESSION_LIB } from "@fe/entities/event";
-import type { EventItem, PatchEventFn } from "@fe/entities/event";
+import { SESSION_LIB, SESSION_KINDS, SESSION_TITLE_MAX, SESSION_SPEAKER_MAX } from "@fe/entities/event";
+import type { EventItem, PatchEventFn, Session } from "@fe/entities/event";
 import type { PatchFn, StudioState } from "../model/state";
 import { ghostBtn, MONO, UI } from "@fe/shared/config/ui";
 import { savingMessage } from "@fe/entities/event";
@@ -64,6 +64,15 @@ export default function AgendaSection({
     });
     patch({ saved: savingMessage(isServerEvent) });
     setMoveAnnouncement(`${moved.title}을(를) ${ev.sessions.length}개 중 ${to + 1}번째로 이동했습니다.`);
+  };
+
+  const updateSession = (idx: number, fields: Partial<Session>) => {
+    patchEvent((curEv) => {
+      const arr = curEv.sessions.slice();
+      arr[idx] = { ...arr[idx], ...fields };
+      return { sessions: arr };
+    });
+    patch({ saved: savingMessage(isServerEvent) });
   };
 
   const handleHandleKeyDown = (idx: number) => (e: React.KeyboardEvent) => {
@@ -152,36 +161,94 @@ export default function AgendaSection({
             >
               ⠿
             </button>
-            <div
+            <input
+              type="time"
+              className="inp"
+              aria-label="시작 시각"
+              value={x.time}
+              onChange={(e) => updateSession(i, { time: e.target.value })}
               style={{
-                width: 74,
-                flex: '0 0 74px',
+                width: 92,
+                flex: '0 0 92px',
+                height: 32,
+                borderRadius: 8,
+                border: `1px solid ${UI.line}`,
+                background: UI.surface,
+                padding: '0 6px',
                 fontFamily: MONO,
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 600,
                 letterSpacing: '-0.02em',
+                color: UI.ink,
+                outline: 'none',
               }}
-            >
-              {x.time}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
+            />
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <input
+                type="text"
+                className="inp"
+                aria-label="세션 제목"
+                value={x.title}
+                maxLength={SESSION_TITLE_MAX}
+                onChange={(e) => updateSession(i, { title: e.target.value })}
                 style={{
+                  width: '100%',
+                  height: 28,
+                  borderRadius: 8,
+                  border: `1px solid ${UI.line}`,
+                  background: UI.surface,
+                  padding: '0 8px',
                   fontSize: 14,
                   fontWeight: 650,
                   letterSpacing: '-0.015em',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
+                  color: UI.ink,
+                  outline: 'none',
                 }}
-              >
-                {x.title}
-              </div>
-              <div style={{ fontSize: 12, color: UI.muted, marginTop: 3 }}>{x.speaker}</div>
+              />
+              <input
+                type="text"
+                className="inp"
+                aria-label="연자"
+                value={x.speaker}
+                maxLength={SESSION_SPEAKER_MAX}
+                onChange={(e) => updateSession(i, { speaker: e.target.value })}
+                style={{
+                  width: '100%',
+                  height: 24,
+                  borderRadius: 8,
+                  border: `1px solid ${UI.line}`,
+                  background: UI.surface,
+                  padding: '0 8px',
+                  fontSize: 12,
+                  color: UI.muted,
+                  outline: 'none',
+                }}
+              />
             </div>
-            <div style={{ fontFamily: MONO, fontSize: 10, color: UI.faint, paddingRight: 6 }}>
-              {x.kind}
-            </div>
+            <select
+              aria-label="세션 종류"
+              value={x.kind}
+              onChange={(e) => updateSession(i, { kind: e.target.value })}
+              style={{
+                width: 92,
+                flex: '0 0 92px',
+                height: 32,
+                borderRadius: 8,
+                border: `1px solid ${UI.line}`,
+                background: UI.surface,
+                padding: '0 4px',
+                fontFamily: MONO,
+                fontSize: 10,
+                color: UI.faint,
+                outline: 'none',
+              }}
+            >
+              {SESSION_KINDS.map((k) => (
+                <option key={k} value={k}>
+                  {k}
+                </option>
+              ))}
+            </select>
             <button
               className="hv-x"
               onClick={() => {

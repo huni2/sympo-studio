@@ -5,3 +5,4 @@ export { EVENT_TEXT_MAX, isEventTextField, eventTextPatchError, MAX_CAPACITY, CA
 export type { EventTextField } from '@/lib/event-limits';
 export { venueSlug, autoSlug } from '@/lib/event-slug';
 export { SESSIONS0 } from '@/lib/demo-sessions';
+export { SESSION_KINDS, SESSION_TITLE_MAX, SESSION_SPEAKER_MAX } from '@/lib/agenda-limits';
