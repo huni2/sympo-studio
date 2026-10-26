@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card } from "@fe/shared/ui/Card";
 import { SectionTitle } from "@fe/shared/ui/SectionTitle";
 import { generateCertificate } from "@fe/features/answer-survey";
+import { QuestionModeration } from '@fe/features/moderate-questions';
 import { ENGAGE_DEFS } from "../config/sections";
 import type { EventItem, PatchEventFn } from "@fe/entities/event";
 import type { PatchFn } from "../model/state";
@@ -87,6 +88,15 @@ export default function EngageSection({
           );
         })}
       </div>
+
+      {isServerEvent ? (
+        <QuestionModeration key={ev.id} eventId={ev.id} />
+      ) : (
+        <Card padding={16} radius={12} style={{ marginTop: 20 }}>
+          <div style={{ fontSize: 14, fontWeight: 650 }}>질문 관리</div>
+          <p style={{ fontSize: 13, color: UI.muted, lineHeight: 1.6, marginBottom: 0 }}>로컬 게스트 행사에서는 질문을 관리할 수 없습니다. 로그인 후 서버에 저장한 행사에서 이용해주세요.</p>
+        </Card>
+      )}
 
       {ev.engage.cert ? (
         <Card padding={16} radius={12} style={{ marginTop: 20 }}>
