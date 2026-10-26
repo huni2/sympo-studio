@@ -155,10 +155,6 @@ export function useStudioShell({s, ev, presets, patch, setEventStatus, serverIds
   // 건은 로컬 상태를 낙관적으로 바꾸지 않는다.
   const handleBulkAction = async (a: string) => {
     if (bulkPending) return;
-    if (a === '복제') {
-      patch({ sel: [] });
-      return;
-    }
     if (a === '삭제') {
       const targetIds = s.sel;
       setBulkPending(true);

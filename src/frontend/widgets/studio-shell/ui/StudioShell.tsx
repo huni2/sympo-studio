@@ -7,7 +7,9 @@ import { NAV } from "../config/navigation";
 import { ghostBtn, MONO, primaryBtn, savedColor, UI } from "@fe/shared/config/ui";
 import type { StudioShellProps } from '../model/props';
 import { useStudioShell } from '../model/useStudioShell';
-const BULK_ACTIONS = ['공개', '초안', '보관', '복제', '삭제'];
+// FE-50 — '복제'는 핸들러가 선택만 비우고 아무 동작도 안 해(요청·오류 처리 없음) 운영자가
+// 복제된 줄 알고 넘어가는 문제가 있었다. 구현 전까지 버튼 자체를 뺀다.
+const BULK_ACTIONS = ['공개', '초안', '보관', '삭제'];
 const PUBLIC_HOST = 'sympo.superjacob.com';
 
 export default function StudioShell({ children, preview, accountMenu, s, ev, presets, patch, resetSessions, createEvent, isServerEvent, setEventStatus, serverIds }: StudioShellProps) {
@@ -331,7 +333,7 @@ return (
                   opacity: bulkPending ? 0.5 : 1,
                 }}
               >
-                {a === '복제' ? '템플릿으로 복제' : a === '삭제' ? (deleteArmed ? '정말 삭제?' : '삭제') : `${a}으로 변경`}
+                {a === '삭제' ? (deleteArmed ? '정말 삭제?' : '삭제') : `${a}으로 변경`}
               </button>
             );
           })}
