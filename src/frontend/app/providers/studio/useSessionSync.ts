@@ -8,6 +8,7 @@ import type { Session } from "@fe/entities/event";
 import type { PatchFn, StudioState } from "./types";
 
 import type { Dispatch, SetStateAction } from 'react';
+import { saveErrorMessage } from './save-error';
 
 export function useSessionSync({ patch, setS }: {
  patch: PatchFn;
@@ -90,7 +91,7 @@ export function useSessionSync({ patch, setS }: {
           })
           .catch((e) => {
             console.warn('아젠다 저장 실패:', e);
-            patch({ saved: '아젠다 저장 실패 — 다시 시도해주세요' });
+            patch({ saved: saveErrorMessage(e, '아젠다 저장') });
             // 필드 저장과 같은 이유로 큐에서 지우지 않는다 — 다음 아젠다 편집이 최신
             // 배열로 다시 덮어써 재시도된다. 단, 호출자(공개 직전 flush 등)는 실패를
             // 알아야 하므로 여기서 삼키지 않고 다시 던진다.

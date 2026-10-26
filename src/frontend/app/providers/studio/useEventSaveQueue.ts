@@ -6,6 +6,7 @@ import { patchStudioEvent } from "@fe/entities/event";
 
 import type { PatchEvent } from "@fe/entities/event";
 import type { PatchFn } from "./types";
+import { saveErrorMessage } from './save-error';
 
 export function useEventSaveQueue({ patch }: {
  patch: PatchFn;
@@ -40,7 +41,7 @@ export function useEventSaveQueue({ patch }: {
         })
         .catch((e) => {
           console.warn('스튜디오 이벤트 서버 저장 실패:', e);
-          patch({ saved: '저장 실패 — 다시 시도해주세요' });
+          patch({ saved: saveErrorMessage(e) });
           // 실패한 델타는 큐에서 지우지 않고 남겨둔다(위에서 이미 지우지 않음) —
           // 이전엔 요청 보내기 전에 먼저 비웠어서, 실패한 필드는 재시도 수단 없이
           // 그대로 사라지고 이어서 다른 필드를 수정하면 그 필드만 나가 "방금 저장됨"이
