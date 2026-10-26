@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ApiClientError } from "@fe/shared/api/http";
 import { fetchQuestions, postQuestion, type Question } from "../api";
+import { reconcileQuestionPoll } from '../model/question-poll';
 import type { Theme } from "@fe/shared/lib/theme/palette";
 
 interface QaPanelProps {
@@ -26,8 +27,7 @@ export default function QaPanel({ theme: t, online, eventId, active }: QaPanelPr
   const [qaDisabled, setQaDisabled] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inFlight = useRef(false);
-  // 로컬에서 막 등록했지만 아직 서버 GET 응답에서 확인 안 된 질문들 — 확인되기 전까지
-  // 폴링이 통째로 덮어써도 사라지지 않게 보존한다(여러 폴링 주기에 걸쳐도 안전).
+  // 진행 중이던 GET보다 나중에 등록한 질문만 보존한다. 다음 GET부터 공개 여부는 서버가 결정한다.
   const pendingRef = useRef<Question[]>([]);
 
   useEffect(() => {
@@ -41,11 +41,13 @@ export default function QaPanel({ theme: t, online, eventId, active }: QaPanelPr
       // 탭이 백그라운드면 쉰다 — 참가자가 탭을 열어두기만 해도 계속 돌면 D1 읽기 티어를 갉아먹는다.
       if (document.hidden || inFlight.current) return;
       inFlight.current = true;
+      const pendingAtRequestStart = new Set(pendingRef.current.map((question) => question.id));
       try {
         const qs = await fetchQuestions(eventId);
         if (!cancelled) {
-          pendingRef.current = pendingRef.current.filter((p) => !qs.some((existing) => existing.id === p.id));
-          setQuestions(pendingRef.current.length > 0 ? [...qs, ...pendingRef.current] : qs);
+          const result = reconcileQuestionPoll(qs, pendingRef.current, pendingAtRequestStart);
+          pendingRef.current = result.pending;
+          setQuestions(result.questions);
           setLoadError(null);
         }
       } catch (e) {
