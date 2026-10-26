@@ -10,6 +10,7 @@ import { KV_PATTERNS, type Theme } from "@fe/shared/lib/theme/palette";
 import type { Density, KvPattern } from "@fe/shared/lib/theme/options";
 import type { DocumentInfo, EventInfo, Session } from "@fe/entities/event";
 import { useOnlineStatus } from "@fe/shared/lib/network/useOnlineStatus";
+import { formatBytes } from '@fe/shared/lib/format/file-size';
 
 const MONO = 'ui-monospace, monospace';
 
@@ -595,7 +596,11 @@ export default function Microsite({
                       {f.name}
                     </div>
                     <div style={{ fontSize: 11.5, color: t.muted, marginTop: 3 }}>
-                      {unavailable ? '준비 중' : `${f.pages ?? '?'}p · 앱 내 열람`}
+                      {unavailable ? '준비 중' : [
+                        f.pages != null && f.pages > 0 ? `${f.pages}p` : '',
+                        formatBytes(f.sizeBytes),
+                        '앱 내 열람',
+                      ].filter(Boolean).join(' · ')}
                     </div>
                   </div>
                   <div style={{ color: t.muted, fontSize: 14 }}>{loading ? '…' : '→'}</div>

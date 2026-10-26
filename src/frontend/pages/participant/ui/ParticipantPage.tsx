@@ -182,6 +182,7 @@ export default function PublicEventPage() {
     name: d.name,
     status: d.status,
     pages: d.pages,
+    sizeBytes: d.sizeBytes,
     url: d.url,
   }));
 

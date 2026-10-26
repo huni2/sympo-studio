@@ -6,11 +6,7 @@ import { ApiClientError } from "@fe/shared/api/http";
 import { useArmedAction } from "@fe/shared/lib/state/useArmedAction";
 import type { EventItem } from "@fe/entities/event";
 import { ghostBtn, MONO, UI } from "@fe/shared/config/ui";
-
-function formatBytes(bytes: number | null): string {
-  if (bytes == null) return '';
-  return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
-}
+import { formatBytes } from '@fe/shared/lib/format/file-size';
 
 // 서버 상한과 값을 맞춘다(lib/r2.ts MAX_FILE_BYTES, lib/agenda.ts DOC_NAME_MAX) — 두
 // 모듈 다 서버 전용 의존성을 끌고 있어 클라이언트 번들에 직접 import하지 않는다.

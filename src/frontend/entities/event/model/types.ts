@@ -64,6 +64,8 @@ export interface DocumentInfo {
   name: string;
   status: string; // 'pending'이면 아직 준비 중
   pages: number | null;
+  // 이전 캐시·데모에는 없을 수 있다. API는 null 또는 바이트 수를 반환한다.
+  sizeBytes?: number | null;
   // 파일이 붙은 자료만 값이 있다(서명 URL, 10분 TTL) — 스튜디오 미리보기의
   // DEMO_DOCUMENTS는 실제 파일이 없으므로 null.
   url: string | null;

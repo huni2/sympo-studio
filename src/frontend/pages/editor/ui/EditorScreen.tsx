@@ -66,6 +66,7 @@ export default function EditorScreen({
     name: d.displayName,
     status: d.status,
     pages: d.pageCount,
+    sizeBytes: d.sizeBytes,
     url: null,
   }));
 
