@@ -1,6 +1,6 @@
 import { SESSIONS0 } from "../lib/rules";
 import { venueSlug } from "../lib/rules";
-import type { EventItem, Session } from "./types";
+import type { EventItem } from "./types";
 
 const THEME_PRESET_CYCLE = ['aurora', 'prime', 'vertex', 'amber', 'slate'];
 
@@ -16,12 +16,6 @@ export const VENUES = [
   '한강 컨벤션센터',
   '해운대 마리나 부산',
   '보문 레이크 경주',
-];
-
-export const SESSION_LIB: Omit<Session, 'id'>[] = [
-  { time: '19:30', title: 'Late-Breaking Data Review', speaker: '오하린 교수 · 명우대학교병원', kind: 'LECTURE' },
-  { time: '19:50', title: 'Case Sharing: 임상 적용 사례', speaker: '강도윤 교수 · 하람대학교병원', kind: 'CASE' },
-  { time: '20:10', title: 'Closing Remarks', speaker: '좌장 서정우', kind: 'CLOSING' },
 ];
 
 /** base가 이미 쓰이고 있으면 -2, -3 ...을 붙여 회차별 고유 slug를 보장한다 — 서버의 ensureUniqueSlug와 같은 규칙. */

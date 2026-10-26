@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { SectionTitle } from "@fe/shared/ui/SectionTitle";
-import { SESSION_LIB, SESSION_KINDS, SESSION_TITLE_MAX, SESSION_SPEAKER_MAX } from "@fe/entities/event";
+import { SESSION_KINDS, SESSION_TITLE_MAX, SESSION_SPEAKER_MAX } from "@fe/entities/event";
 import type { EventItem, PatchEventFn, Session } from "@fe/entities/event";
 import type { PatchFn, StudioState } from "../model/state";
 import { ghostBtn, MONO, UI } from "@fe/shared/config/ui";
 import { savingMessage } from "@fe/entities/event";
+import { createAgendaSession } from '../model/create-session';
 
 export default function AgendaSection({
   s,
@@ -94,15 +95,15 @@ export default function AgendaSection({
           <button
             className="hv-bg965"
             onClick={() => {
+              const idSeed = Date.now();
               patchEvent((curEv) => {
-                const pick = SESSION_LIB[curEv.sessions.length % SESSION_LIB.length];
-                return { sessions: [...curEv.sessions, { id: Date.now(), ...pick }] };
+                return { sessions: [...curEv.sessions, createAgendaSession(curEv.sessions, idSeed)] };
               });
               patch({ saved: savingMessage(isServerEvent) });
             }}
             style={{ ...ghostBtn, fontWeight: 600 }}
           >
-            라이브러리에서 가져오기
+            세션 추가
           </button>
         }
       />

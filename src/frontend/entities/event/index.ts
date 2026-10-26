@@ -25,7 +25,6 @@ export { patchStudioEventSlug } from './api/studio';
 export { savingMessage } from './lib/saving-message';
 export { EVENT_STATUSES } from './lib/rules';
 export { eventPhase } from './lib/rules';
-export { SESSION_LIB } from './model/defaults';
 export { SESSION_KINDS } from './lib/rules';
 export { SESSION_TITLE_MAX } from './lib/rules';
 export { SESSION_SPEAKER_MAX } from './lib/rules';
