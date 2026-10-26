@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { QaPanel } from '@fe/features/ask-question';
 import { SurveyPanel } from '@fe/features/answer-survey';
 import { fetchWithTimeout } from "@fe/shared/api/http";
-import { sendEventLogs } from "@fe/entities/event";
+import { documentAvailability, sendEventLogs } from "@fe/entities/event";
 import { KV_PATTERNS, type Theme } from "@fe/shared/lib/theme/palette";
 import type { Density, KvPattern } from "@fe/shared/lib/theme/options";
 import type { DocumentInfo, EventInfo, Session } from "@fe/entities/event";
@@ -540,16 +540,15 @@ export default function Microsite({
             <div style={{ fontSize: 12.5, color: t.muted }}>등록된 자료가 없습니다.</div>
           ) : (
             docs.map((f) => {
-              const pending = f.status === 'pending';
-              // status가 pending을 벗어났어도 파일(url)이 없는 자료는 열 수 없다 — pending과
-              // 똑같이 비활성으로 그려야 "활성화된 것처럼 보이는데 눌러도 반응이 없는" 상태를 피한다.
-              const unavailable = pending || !f.url;
+              const { uploaded, canOpen } = documentAvailability(f);
+              const unavailable = !canOpen;
               const loading = loadingDocId === f.id;
               return (
                 <button
                   key={f.id}
                   type="button"
                   disabled={unavailable}
+                  title={uploaded && !canOpen && preview ? '미리보기에서는 PDF를 열 수 없습니다. 참가자 화면에서 확인해주세요.' : undefined}
                   onClick={() => openDocument(f)}
                   style={{
                     display: 'flex',
@@ -563,7 +562,7 @@ export default function Microsite({
                     borderRadius: 13,
                     padding: '12px 13px',
                     cursor: unavailable ? 'not-allowed' : 'pointer',
-                    opacity: unavailable ? 0.6 : loading ? 0.8 : 1,
+                    opacity: !uploaded ? 0.6 : loading ? 0.8 : 1,
                   }}
                 >
                   <div
@@ -596,14 +595,14 @@ export default function Microsite({
                       {f.name}
                     </div>
                     <div style={{ fontSize: 11.5, color: t.muted, marginTop: 3 }}>
-                      {unavailable ? '준비 중' : [
+                      {!uploaded ? '준비 중' : [
                         f.pages != null && f.pages > 0 ? `${f.pages}p` : '',
                         formatBytes(f.sizeBytes),
-                        '앱 내 열람',
+                        canOpen ? '앱 내 열람' : preview ? '업로드 완료 · 참가자 화면에서 열람' : '자료를 열 수 없습니다',
                       ].filter(Boolean).join(' · ')}
                     </div>
                   </div>
-                  <div style={{ color: t.muted, fontSize: 14 }}>{loading ? '…' : '→'}</div>
+                  <div style={{ color: t.muted, fontSize: 14 }}>{loading ? '…' : canOpen ? '→' : ''}</div>
                 </button>
               );
             })

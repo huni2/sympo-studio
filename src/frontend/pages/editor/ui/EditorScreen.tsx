@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import { Microsite } from '@fe/widgets/participant-site';
+import { toPreviewDocuments } from '@fe/entities/event';
 import { SECTIONS } from "../config/sections";
 import { derive, ICONSETS } from "@fe/shared/lib/theme/palette";
 import type { AuthUser } from "@fe/entities/account";
 import type { Device, PatchFn, StudioState } from "../model/state";
-import type { DocumentInfo, EventItem, PatchEventFn } from "@fe/entities/event";
+import type { EventItem, PatchEventFn } from "@fe/entities/event";
 import type { Preset } from "@fe/entities/theme";
 import { MONO, monoLabel, UI } from "@fe/shared/config/ui";
 import AgendaSection from "./AgendaSection";
@@ -61,14 +62,7 @@ export default function EditorScreen({
   // 예시 2건(DEMO_DOCUMENTS)을 보여줘서, 자료를 하나도 안 올린 새 이벤트도 미리보기엔
   // 늘 "자료 2건"이 떠 있었다. 스튜디오엔 서명 URL이 없어(그건 참가자 경로 전용이다)
   // url은 전부 null — 미리보기에서 파일을 실제로 열어보는 건 이번 범위 밖이다.
-  const previewDocuments: DocumentInfo[] = ev.documents.map((d) => ({
-    id: d.id,
-    name: d.displayName,
-    status: d.status,
-    pages: d.pageCount,
-    sizeBytes: d.sizeBytes,
-    url: null,
-  }));
+  const previewDocuments = toPreviewDocuments(ev.documents);
 
   const roRef = useRef<ResizeObserver | null>(null);
   const pvRef = useCallback(

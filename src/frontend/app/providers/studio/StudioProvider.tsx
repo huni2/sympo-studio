@@ -584,7 +584,10 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
       // 내용이 먼저 보이고, 그 저장이 실패해도 공개 자체는 성공해버린다(팀원
       // 코드리뷰가 PR #63에서 발견). 둘 중 하나라도 실패하면 여기서 던져 공개
       // 자체를 막는다 — 호출자(StudioShell)가 실패 사유를 사용자에게 보여준다.
-      await Promise.all([flushServerSave(id), flushSessionSave(id)]);
+      // 한 저장이 먼저 실패해도 다른 저장의 늦은 성공 문구가 오류를 덮지 않도록 둘 다 기다린다.
+      const saves = await Promise.allSettled([flushServerSave(id), flushSessionSave(id)]);
+      const failed = saves.find((result) => result.status === 'rejected');
+      if (failed?.status === 'rejected') throw failed.reason;
       await patchStudioEventStatus(id, status);
       setS((prev) => {
         const idx = prev.events.findIndex((e) => e.id === id);

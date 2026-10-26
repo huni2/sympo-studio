@@ -21,35 +21,42 @@ export function useEventSaveQueue({ patch }: {
   // 언마운트되지 않으므로 cleanup도 이걸 못 잡는다).
   const pendingSavesRef = useRef<Map<number, PatchEvent>>(new Map());
   const saveTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const inFlightSavesRef = useRef<Map<number, Promise<void>>>(new Map());
   const SAVE_DEBOUNCE_MS = 700;
 
   const flushServerSave = useCallback(
     (id: number): Promise<void> => {
-      const delta = pendingSavesRef.current.get(id);
       const timer = saveTimersRef.current.get(id);
       if (timer) clearTimeout(timer);
       saveTimersRef.current.delete(id);
-      if (!delta) return Promise.resolve();
-      patch({ saved: '변경 저장 중…' });
-      return patchStudioEvent(id, delta)
-        .then(() => {
-          // 이 델타를 큐에서 뺀다 — 단, 응답을 기다리는 사이 같은 이벤트에 새 편집이
-          // 들어와 이미 다른(더 최신) 델타로 교체됐다면 그건 건드리지 않는다(이미
-          // 예약된 다음 타이머가 그 최신 값을 마저 보낸다).
+      // 공개 직전 flush도 진행 중인 요청을 공유해 같은 변경을 중복 전송하지 않는다.
+      const inFlight = inFlightSavesRef.current.get(id);
+      if (inFlight) return inFlight;
+      if (!pendingSavesRef.current.get(id)) return Promise.resolve();
+      const run = Promise.resolve().then(async () => {
+        let delta = pendingSavesRef.current.get(id);
+        while (delta) {
+          patch({ saved: '변경 저장 중…' });
+          try {
+            await patchStudioEvent(id, delta);
+          } catch (e) {
+            console.warn('스튜디오 이벤트 서버 저장 실패:', e);
+            patch({ saved: saveErrorMessage(e) });
+            // 실패한 델타는 남겨 다음 편집에서 합쳐 재시도하고, 공개 호출자에게 실패를 알린다.
+            throw e;
+          }
           if (pendingSavesRef.current.get(id) === delta) pendingSavesRef.current.delete(id);
-          patch({ saved: '방금 저장됨' });
-        })
-        .catch((e) => {
-          console.warn('스튜디오 이벤트 서버 저장 실패:', e);
-          patch({ saved: saveErrorMessage(e) });
-          // 실패한 델타는 큐에서 지우지 않고 남겨둔다(위에서 이미 지우지 않음) —
-          // 이전엔 요청 보내기 전에 먼저 비웠어서, 실패한 필드는 재시도 수단 없이
-          // 그대로 사라지고 이어서 다른 필드를 수정하면 그 필드만 나가 "방금 저장됨"이
-          // 뜨는 동안 실패한 필드는 계속 서버에 반영 안 된 채 묻혔다(교차 리뷰 발견).
-          // 이제 같은 이벤트를 한 번 더 편집하면 남은 델타와 합쳐져 함께 재전송된다.
-          // 호출자(공개 직전 flush 등)는 실패를 알아야 하므로 다시 던진다.
-          throw e;
-        });
+          // 응답 대기 중 쌓인 최신 수정도 순서대로 저장한 뒤에만 완료를 알린다.
+          delta = pendingSavesRef.current.get(id);
+        }
+        patch({ saved: '방금 저장됨' });
+      });
+      inFlightSavesRef.current.set(id, run);
+      const clearInFlight = () => {
+        if (inFlightSavesRef.current.get(id) === run) inFlightSavesRef.current.delete(id);
+      };
+      void run.then(clearInFlight, clearInFlight);
+      return run;
     },
     [patch],
   );

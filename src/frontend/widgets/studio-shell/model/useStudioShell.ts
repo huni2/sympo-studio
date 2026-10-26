@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { ApiClientError } from "@fe/shared/api/http";
+import { requestFailureMessage } from '@fe/shared/api/failure-message';
 import { useArmedAction } from "@fe/shared/lib/state/useArmedAction";
 
 import { deleteStudioEvent, patchStudioEventStatus } from "@fe/entities/event";
@@ -118,7 +119,7 @@ export function useStudioShell({s, ev, presets, patch, setEventStatus, serverIds
       patch({ saved: '공개됨' });
     } catch (e) {
       console.warn('이벤트 공개 실패:', e);
-      patch({ saved: '공개하지 못했습니다 — 다시 시도해주세요' });
+      patch({ saved: requestFailureMessage(e, '공개하지 못했습니다') });
     } finally {
       setStatusPendingId(null);
     }
@@ -133,7 +134,7 @@ export function useStudioShell({s, ev, presets, patch, setEventStatus, serverIds
       patch({ saved: '비공개로 전환됨' });
     } catch (e) {
       console.warn('이벤트 비공개 전환 실패:', e);
-      patch({ saved: '전환하지 못했습니다 — 다시 시도해주세요' });
+      patch({ saved: requestFailureMessage(e, '전환하지 못했습니다') });
     } finally {
       setStatusPendingId(null);
     }

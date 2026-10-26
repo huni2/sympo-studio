@@ -66,8 +66,10 @@ export interface DocumentInfo {
   pages: number | null;
   // 이전 캐시·데모에는 없을 수 있다. API는 null 또는 바이트 수를 반환한다.
   sizeBytes?: number | null;
-  // 파일이 붙은 자료만 값이 있다(서명 URL, 10분 TTL) — 스튜디오 미리보기의
-  // DEMO_DOCUMENTS는 실제 파일이 없으므로 null.
+  // 스튜디오 미리보기는 파일이 있어도 열람 URL을 받지 않는다.
+  hasFile?: boolean;
+  // 참가자 공개 화면은 파일이 있는 자료에 서명 URL(10분 TTL)을 받는다.
+  // 스튜디오 미리보기는 업로드가 끝났어도 URL을 받지 않으므로 null이다.
   url: string | null;
 }
 

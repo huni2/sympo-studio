@@ -2,7 +2,7 @@
 
 import Microsite from "./Microsite";
 import { derive, ICONSETS } from "@fe/shared/lib/theme/palette";
-import type { DocumentInfo, EventItem } from "@fe/entities/event";
+import { toPreviewDocuments, type EventItem } from "@fe/entities/event";
 import type { Preset } from "@fe/entities/theme";
 import { monoLabel, UI } from "@fe/shared/config/ui";
 
@@ -21,13 +21,7 @@ export default function ViewerScreen({ ev, presets }: { ev: EventItem; presets: 
   };
   // 실제 이 이벤트의 자료로 미리보기를 그린다(FE-25) — 안 넘기면 EditorScreen의 라이브
   // 미리보기와 마찬가지로 Microsite가 대표 예시 2건(DEMO_DOCUMENTS)을 보여준다.
-  const previewDocuments: DocumentInfo[] = ev.documents.map((d) => ({
-    id: d.id,
-    name: d.displayName,
-    status: d.status,
-    pages: d.pageCount,
-    url: null,
-  }));
+  const previewDocuments = toPreviewDocuments(ev.documents);
   const micrositeProps = {
     theme,
     sessions: ev.sessions,

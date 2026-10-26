@@ -29,6 +29,7 @@ export { SESSION_KINDS } from './lib/rules';
 export { SESSION_TITLE_MAX } from './lib/rules';
 export { SESSION_SPEAKER_MAX } from './lib/rules';
 export type { DocumentInfo } from './model/types';
+export { toPreviewDocuments, documentAvailability } from './lib/document-presentation';
 export { sendEventLogs } from './api/participant';
 export type { EventOps } from './api/participant';
 export { fetchPublicReport } from './api/participant';
